@@ -10,40 +10,17 @@
 using	namespace std;
 
 
-/*
 
-Edition 1.2
-
-"Timmer" func might make some mistake with "Sleep" func
-
-Edition 1.3
-
-support string to be the parameters, and support the COM>10
-
-Edition 1.4
-
-add clone timmer func to allows timmer runs independently
-add individual func to solve the cose of mutex.
-
-Edition 1.5
-
-mutex synchronize has been optimized
-
-
-Edition 1.6
-reduce mutex, mult-thread cost of timmer.
-Serial mult-thread read&write protect
-*/
 
 class Serial
 {
 	/*
-	´Ëº¯Êı½ö½öÓÃÓÚ¿ìËÙµÄ·¢ËÍÓë¶ÁÈ¡´®¿ÚÄÚÈİ£¬ ÒÔÍ¬²½µÄ·½Ê½·¢ËÍÊı¾İ
+	æ­¤å‡½æ•°ä»…ä»…ç”¨äºå¿«é€Ÿçš„å‘é€ä¸è¯»å–ä¸²å£å†…å®¹ï¼Œ ä»¥åŒæ­¥çš„æ–¹å¼å‘é€æ•°æ®
 
 	*/
 public:
 
-	bool IsSerialOpen = 1;//´®¿ÚÊÇ·ñ³É¹¦´ò¿ª
+	bool IsSerialOpen = 1;//ä¸²å£æ˜¯å¦æˆåŠŸæ‰“å¼€
 
 	Serial()
 	{}
@@ -55,38 +32,38 @@ public:
 		char hanName[20] = { 0 };
 		strcpy_s(hanName, N4.c_str());
 
-		STM32 = CreateFileA(hanName,//COM¿Ú
-			GENERIC_READ | GENERIC_WRITE, //ÔÊĞí¶ÁºÍĞ´
-			0, //¶ÀÕ¼·½Ê½
+		STM32 = CreateFileA(hanName,//COMå£
+			GENERIC_READ | GENERIC_WRITE, //å…è®¸è¯»å’Œå†™
+			0, //ç‹¬å æ–¹å¼
 			NULL,
-			OPEN_EXISTING, //´ò¿ª¶ø²»ÊÇ´´½¨
-			0, //Í¬²½·½Ê½
+			OPEN_EXISTING, //æ‰“å¼€è€Œä¸æ˜¯åˆ›å»º
+			0, //åŒæ­¥æ–¹å¼
 			NULL);
 		if (STM32 == (HANDLE)-1)
 		{
-			cout << "´ò¿ªCOMÊ§°Ü!" << endl;
+			cout << "æ‰“å¼€COMå¤±è´¥!" << endl;
 			IsSerialOpen = FALSE;
 			//return 0;
 		}
 
-		else cout << "´ò¿ªCOM³É¹¦!" << endl;
+		else cout << "æ‰“å¼€COMæˆåŠŸ!" << endl;
 
-		SetupComm(STM32, 1024, 1024);//ÊäÈë»º³åÇøºÍÊä³ö»º³åÇøµÄ´óĞ¡¶¼ÊÇ1024
-		COMMTIMEOUTS TimeOuts;//Éè¶¨¶Á³¬Ê±
+		SetupComm(STM32, 1024, 1024);//è¾“å…¥ç¼“å†²åŒºå’Œè¾“å‡ºç¼“å†²åŒºçš„å¤§å°éƒ½æ˜¯1024
+		COMMTIMEOUTS TimeOuts;//è®¾å®šè¯»è¶…æ—¶
 		TimeOuts.ReadIntervalTimeout = 2;
 		TimeOuts.ReadTotalTimeoutMultiplier = 2;
-		TimeOuts.ReadTotalTimeoutConstant = 2;//Éè¶¨Ğ´³¬Ê±
+		TimeOuts.ReadTotalTimeoutConstant = 2;//è®¾å®šå†™è¶…æ—¶
 		TimeOuts.WriteTotalTimeoutMultiplier = 2;
 		TimeOuts.WriteTotalTimeoutConstant = 2;
-		SetCommTimeouts(STM32, &TimeOuts);//ÉèÖÃ³¬Ê±
+		SetCommTimeouts(STM32, &TimeOuts);//è®¾ç½®è¶…æ—¶
 		DCB dcb;
 		GetCommState(STM32, &dcb);
-		dcb.BaudRate = SerialSpeed;//²¨ÌØÂÊ
-		dcb.ByteSize = 8;//Ã¿¸ö×Ö½ÚÓĞ8Î»
-		dcb.Parity = NOPARITY;//ÎŞÆæÅ¼Ğ£ÑéÎ»
-		dcb.StopBits = 0;//Á½¸öÍ£Ö¹Î»
+		dcb.BaudRate = SerialSpeed;//æ³¢ç‰¹ç‡
+		dcb.ByteSize = 8;//æ¯ä¸ªå­—èŠ‚æœ‰8ä½
+		dcb.Parity = NOPARITY;//æ— å¥‡å¶æ ¡éªŒä½
+		dcb.StopBits = 0;//ä¸¤ä¸ªåœæ­¢ä½
 		SetCommState(STM32, &dcb);
-		PurgeComm(STM32, PURGE_TXCLEAR | PURGE_RXCLEAR);//ÇåÀí´®¿Ú»º´æ£¬µ«ÊÇÕâÀïÔİÊ±²»ÓÃ
+		PurgeComm(STM32, PURGE_TXCLEAR | PURGE_RXCLEAR);//æ¸…ç†ä¸²å£ç¼“å­˜ï¼Œä½†æ˜¯è¿™é‡Œæš‚æ—¶ä¸ç”¨
 		//return 1;
 	}
 
@@ -98,56 +75,56 @@ public:
 		char hanName[20] = { 0 };
 		strcpy_s(hanName, N4.c_str());
 
-		STM32 = CreateFileA(hanName,//COM¿Ú
-			GENERIC_READ | GENERIC_WRITE, //ÔÊĞí¶ÁºÍĞ´
-			0, //¶ÀÕ¼·½Ê½
+		STM32 = CreateFileA(hanName,//COMå£
+			GENERIC_READ | GENERIC_WRITE, //å…è®¸è¯»å’Œå†™
+			0, //ç‹¬å æ–¹å¼
 			NULL,
-			OPEN_EXISTING, //´ò¿ª¶ø²»ÊÇ´´½¨
-			0, //Í¬²½·½Ê½
+			OPEN_EXISTING, //æ‰“å¼€è€Œä¸æ˜¯åˆ›å»º
+			0, //åŒæ­¥æ–¹å¼
 			NULL);
 		if (STM32 == (HANDLE)-1)
 		{
-			cout << "´ò¿ªCOMÊ§°Ü!" << endl;
+			cout << "æ‰“å¼€COMå¤±è´¥!" << endl;
 			IsSerialOpen = FALSE;
 			return 0;
 		}
 
-		else cout << "´ò¿ªCOM³É¹¦!" << endl;
+		else cout << "æ‰“å¼€COMæˆåŠŸ!" << endl;
 
-		SetupComm(STM32, 1024, 1024);//ÊäÈë»º³åÇøºÍÊä³ö»º³åÇøµÄ´óĞ¡¶¼ÊÇ1024
-		COMMTIMEOUTS TimeOuts;//Éè¶¨¶Á³¬Ê±
+		SetupComm(STM32, 1024, 1024);//è¾“å…¥ç¼“å†²åŒºå’Œè¾“å‡ºç¼“å†²åŒºçš„å¤§å°éƒ½æ˜¯1024
+		COMMTIMEOUTS TimeOuts;//è®¾å®šè¯»è¶…æ—¶
 		TimeOuts.ReadIntervalTimeout = 2;
 		TimeOuts.ReadTotalTimeoutMultiplier = 2;
-		TimeOuts.ReadTotalTimeoutConstant = 2;//Éè¶¨Ğ´³¬Ê±
+		TimeOuts.ReadTotalTimeoutConstant = 2;//è®¾å®šå†™è¶…æ—¶
 		TimeOuts.WriteTotalTimeoutMultiplier = 2;
 		TimeOuts.WriteTotalTimeoutConstant = 2;
-		SetCommTimeouts(STM32, &TimeOuts);//ÉèÖÃ³¬Ê±
+		SetCommTimeouts(STM32, &TimeOuts);//è®¾ç½®è¶…æ—¶
 		DCB dcb;
 		GetCommState(STM32, &dcb);
-		dcb.BaudRate = SerialSpeed;//²¨ÌØÂÊ
-		dcb.ByteSize = 8;//Ã¿¸ö×Ö½ÚÓĞ8Î»
-		dcb.Parity = NOPARITY;//ÎŞÆæÅ¼Ğ£ÑéÎ»
-		dcb.StopBits = 0;//Á½¸öÍ£Ö¹Î»
+		dcb.BaudRate = SerialSpeed;//æ³¢ç‰¹ç‡
+		dcb.ByteSize = 8;//æ¯ä¸ªå­—èŠ‚æœ‰8ä½
+		dcb.Parity = NOPARITY;//æ— å¥‡å¶æ ¡éªŒä½
+		dcb.StopBits = 0;//ä¸¤ä¸ªåœæ­¢ä½
 		SetCommState(STM32, &dcb);
 		PurgeComm(STM32, PURGE_TXCLEAR | PURGE_RXCLEAR);
 		return 1;
 	}
 
-	DWORD wCount = 0;//Êµ¼ÊĞ´µÄ×Ö½ÚÊı
-	DWORD RCount = 0;//Êµ¼Ê¶ÁÈ¡×Ö½ÚÊı
+	DWORD wCount = 0;//å®é™…å†™çš„å­—èŠ‚æ•°
+	DWORD RCount = 0;//å®é™…è¯»å–å­—èŠ‚æ•°
 
 	bool Write(LPCVOID a, DWORD NumWrite)
 	{
 		bool b = WriteFile(STM32, a, NumWrite, &wCount, NULL);
-		//PurgeComm(STM32, PURGE_TXCLEAR);//ÇåÀí´®¿Ú»º´æ£¬µ«ÊÇÕâÀïÔİÊ±²»ÓÃ
+		//PurgeComm(STM32, PURGE_TXCLEAR);//æ¸…ç†ä¸²å£ç¼“å­˜ï¼Œä½†æ˜¯è¿™é‡Œæš‚æ—¶ä¸ç”¨
 		return b;
 	}
 
 	bool Protect_Write(LPCVOID a, DWORD NumWrite)
 	{
-		lock_guard<mutex> lck(write_L);//ÈßÓà±£»¤
+		lock_guard<mutex> lck(write_L);//å†—ä½™ä¿æŠ¤
 		bool b = WriteFile(STM32, a, NumWrite, &wCount, NULL);
-		//PurgeComm(STM32, PURGE_TXCLEAR);//ÇåÀí´®¿Ú»º´æ£¬µ«ÊÇÕâÀïÔİÊ±²»ÓÃ
+		//PurgeComm(STM32, PURGE_TXCLEAR);//æ¸…ç†ä¸²å£ç¼“å­˜ï¼Œä½†æ˜¯è¿™é‡Œæš‚æ—¶ä¸ç”¨
 		return b;
 	}
 
@@ -169,7 +146,7 @@ public:
 	}
 	bool Protect_Read(LPVOID a, DWORD NumRead)
 	{
-		lock_guard<mutex> lck(read_L);//ÈßÓà±£»¤
+		lock_guard<mutex> lck(read_L);//å†—ä½™ä¿æŠ¤
 		bool b = ReadFile(STM32, a, NumRead, &RCount, NULL);
 		//PurgeComm(STM32, PURGE_RXCLEAR);
 		return b;
@@ -200,7 +177,7 @@ private:
 
 	LONGLONG copy()
 	{
-		lock_guard<mutex> lck(timmer_locker);//±£»¤
+		lock_guard<mutex> lck(timmer_locker);//ä¿æŠ¤
 		return Time_Start;
 	}
 
@@ -209,27 +186,27 @@ public:
 	{
 		LARGE_INTEGER Storage;
 		QueryPerformanceFrequency(&Storage);
-		dfFreq = Storage.QuadPart;// »ñµÃ¼ÆÊıÆ÷µÄÊ±ÖÓÆµÂÊ
+		dfFreq = Storage.QuadPart;// è·å¾—è®¡æ•°å™¨çš„æ—¶é’Ÿé¢‘ç‡
 	}
-	void T_start()//¿ªÊ¼¼ÆÊ±
+	void T_start()//å¼€å§‹è®¡æ—¶
 	{
 		LARGE_INTEGER Storage;
 		QueryPerformanceCounter(&Storage);
-		lock_guard<mutex> lck(timmer_locker);//±£»¤
-		Time_Start = Storage.QuadPart;// »ñµÃ³õÊ¼Öµ
+		lock_guard<mutex> lck(timmer_locker);//ä¿æŠ¤
+		Time_Start = Storage.QuadPart;// è·å¾—åˆå§‹å€¼
 	}
 
-	void operator=(timmer_inS& T)//¸´ÖÆÊ±ÖÓ³õÊ¼Öµ£¨ĞèÒªÔÚÍ¬Ò»ÏµÍ³ÏÂ£©
+	void operator=(timmer_inS& T)//å¤åˆ¶æ—¶é’Ÿåˆå§‹å€¼ï¼ˆéœ€è¦åœ¨åŒä¸€ç³»ç»Ÿä¸‹ï¼‰
 	{
-		lock_guard<mutex> lck(timmer_locker);//±£»¤
+		lock_guard<mutex> lck(timmer_locker);//ä¿æŠ¤
 		Time_Start = T.copy();
 		return;
 	}
-	double T_now()//Êä³öµ±Ç°Ê±¼ä¼ä¸ô£¨s£©
+	double T_now()//è¾“å‡ºå½“å‰æ—¶é—´é—´éš”ï¼ˆsï¼‰
 	{
 		LARGE_INTEGER L_now;//
-		QueryPerformanceCounter(&L_now);//»ñÈ¡Ê±¼ä
-		return (double)(L_now.QuadPart - Time_Start) / dfFreq;// »ñµÃ¶ÔÓ¦µÄÊ±¼äÖµ£¬µ¥Î»ÎªÃë
+		QueryPerformanceCounter(&L_now);//è·å–æ—¶é—´
+		return (double)(L_now.QuadPart - Time_Start) / dfFreq;// è·å¾—å¯¹åº”çš„æ—¶é—´å€¼ï¼Œå•ä½ä¸ºç§’
 
 	}
 
