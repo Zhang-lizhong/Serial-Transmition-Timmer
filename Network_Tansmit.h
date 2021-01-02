@@ -16,10 +16,10 @@ https://blog.csdn.net/xiaoquantouer/article/details/58001960?utm_medium=distribu
 send/receive error code:
 https://docs.microsoft.com/en-us/windows/win32/winsock/windows-sockets-error-codes-2
 
-VS2019 ÎŞ·¨Ê¹ÓÃ'inet_ntoa': Use inet_ntop() or InetNtop() instead or define
+VS2019 æ— æ³•ä½¿ç”¨'inet_ntoa': Use inet_ntop() or InetNtop() instead or define
 
-ÊôĞÔ->ÅäÖÃÊôĞÔ->C/C++ -> Ô¤´¦ÀíÆ÷ -> Ô¤´¦ÀíÆ÷¶¨Òå ->½«¡°_CRT_SECURE_NO_WARNINGS¡±¼ÓÉÏ
-ÎÄ¼şµÄÊôĞÔÒ³----->c/c+¡À----->³£¹æ£¬½«SDL¼ì²é¸ÄÎª·ñ
+å±æ€§->é…ç½®å±æ€§->C/C++ -> é¢„å¤„ç†å™¨ -> é¢„å¤„ç†å™¨å®šä¹‰ ->å°†â€œ_CRT_SECURE_NO_WARNINGSâ€åŠ ä¸Š
+æ–‡ä»¶çš„å±æ€§é¡µ----->c/c+Â±----->å¸¸è§„ï¼Œå°†SDLæ£€æŸ¥æ”¹ä¸ºå¦
 
 use "win+R>cmd > ipconfig/all" to get ip address.
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -42,15 +42,6 @@ add callback
 
 namespace NETWORK
 {
-
-
-
-	typedef int (*Server_Call)(N_Serial_Server& server,void* data);
-
-
-	typedef int (*Client_Call)(N_Serial_Client& client, void* data);
-
-
 
 
 
@@ -93,7 +84,7 @@ namespace NETWORK
 		int WaitConnect()
 		{
 			start:
-			printf("µÈ´ıÁ¬½Ó...\n");
+			printf("ç­‰å¾…è¿æ¥...\n");
 			sClient = accept(slisten, (SOCKADDR*)& remoteAddr, &nAddrlen);
 			if (sClient == INVALID_SOCKET)
 			{
@@ -101,13 +92,13 @@ namespace NETWORK
 				MessageBoxA(NULL, "connect failed", "Warning", NULL);
 				return -1;
 			}
-			printf("½ÓÊÜµ½Ò»¸öÁ¬½Ó£º%s \r\n", inet_ntoa(remoteAddr.sin_addr));
+			printf("æ¥å—åˆ°ä¸€ä¸ªè¿æ¥ï¼š%s \r\n", inet_ntoa(remoteAddr.sin_addr));
 			return 1;
 		}
 
 		bool receiveData(byte* buffer,int bufferLen,UINT &lenRecv)
 		{
-			lock_guard<mutex> lck(R_lock);//±£»¤
+			lock_guard<mutex> lck(R_lock);//ä¿æŠ¤
 			int ret = recv(sClient, (char*)buffer, 255, 0);
 			if (ret >= 0)
 			{
@@ -120,7 +111,7 @@ namespace NETWORK
 		}
 		bool sendData(byte* buffer, int bufferLen)
 		{
-			lock_guard<mutex> lck(S_lock);//±£»¤
+			lock_guard<mutex> lck(S_lock);//ä¿æŠ¤
 			int code = send(sClient, (const char*)buffer, bufferLen, 0);
 			if(code>=0)return 1;
 			cout << "send error, code: " <<code<< endl;
@@ -179,7 +170,7 @@ namespace NETWORK
 		{
 			start:
 			if (connect(sClient, (sockaddr*)& sin, sizeof(sin)) == SOCKET_ERROR)
-			{  //Á¬½ÓÊ§°Ü 
+			{  //è¿æ¥å¤±è´¥ 
 				if (MessageBoxA(NULL, "Can not connent server, want try again?", "Warning", MB_YESNO) == IDYES)goto start;
 				MessageBoxA(NULL, "failed to connect server", "Warning", NULL);
 				closesocket(sClient);
@@ -190,7 +181,7 @@ namespace NETWORK
 
 		bool receiveData(byte* buffer, int bufferLen, UINT& lenRecv)
 		{
-			lock_guard<mutex> lck(R_lock);//±£»¤
+			lock_guard<mutex> lck(R_lock);//ä¿æŠ¤
 			int ret = recv(sClient, (char*)buffer, 255, 0);
 			if (ret >= 0)
 			{
@@ -203,7 +194,7 @@ namespace NETWORK
 		}
 		bool sendData(byte* buffer, int bufferLen)
 		{
-			lock_guard<mutex> lck(S_lock);//±£»¤
+			lock_guard<mutex> lck(S_lock);//ä¿æŠ¤
 			int code = send(sClient, (const char*)buffer, bufferLen, 0);
 			if (code >= 0)return 1;
 			cout << "send error, code: " << code << endl;
@@ -233,20 +224,31 @@ namespace NETWORK
 		mutex S_lock;
 	};
 
+
+
+	typedef int (*Server_Call)(N_Serial_Server* server, void* data);
+
+
+	typedef int (*Client_Call)(N_Serial_Client* client, void* data);
+
+	
+
 	/*use a new thread to excute, if -1 return will exit the thread*/
-	void Server_thread(N_Serial_Server& server, Server_Call func, void* userdata)
+	void Server_thread(N_Serial_Server* server, Server_Call func, void* userdata)
 	{
 		cout << "start listen....\n";
 		while (func(server, userdata) != -1);
 		cout << "stop listen....\n";
+		return;
 	}
 
 	/*use a new thread to excute, if -1 return will exit the thread*/
-	void Client_thread(N_Serial_Client& client, Client_Call func, void* userdata)
+	void Client_thread(N_Serial_Client* client, Client_Call func, void* userdata)
 	{
 		cout << "start listen....\n";
 		while (func(client, userdata) != -1);
 		cout << "stop listen....\n";
+		return;
 	}
 
 
