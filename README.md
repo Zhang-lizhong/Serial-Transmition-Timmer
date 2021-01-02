@@ -2,4 +2,4 @@ Timmer: A timmer bese on windows sys could be used at record time interval with 
 
 Serial: template to tramsmit information with serial com;
 
-NETWORK: use socket to transmit data, around 7 ms delay under same wifi.
+NETWORK: use TCP socket to transmit data, around 7 ms delay under same wifi.
