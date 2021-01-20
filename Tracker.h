@@ -29,36 +29,36 @@ increased speed
 
 namespace tracker
 {
-	Mat element3 = getStructuringElement(MORPH_ELLIPSE, Size(3, 3), Point(-1, -1));//3*3µÄÄ£°å
-	Mat element5 = getStructuringElement(MORPH_ELLIPSE, Size(5, 5), Point(-1, -1));//5*5µÄÄ£°å
+	Mat element3 = getStructuringElement(MORPH_ELLIPSE, Size(3, 3), Point(-1, -1));//3*3çš„æ¨¡æ¿
+	Mat element5 = getStructuringElement(MORPH_ELLIPSE, Size(5, 5), Point(-1, -1));//5*5çš„æ¨¡æ¿
 
 	////////////////////////////////////////////////////////////////////////
 
-	vector<Point2f> GetCoordinate(Mat& frame, int lower, int upper, bool draw = 0)//ºóÁ½¸öÊÇãĞÖµ draw ÊÇÊÇ·ñ»æ³öÂÖÀª
+	vector<Point2f> GetCoordinate(Mat& frame, int lower, int upper, bool draw = 0)//åä¸¤ä¸ªæ˜¯é˜ˆå€¼ draw æ˜¯æ˜¯å¦ç»˜å‡ºè½®å»“
 	{
 
 
 
-		Mat Rframe; //´Ëº¯ÊıÓÃµ¥Í¨µÀ¾ØÕó
+		Mat Rframe; //æ­¤å‡½æ•°ç”¨å•é€šé“çŸ©é˜µ
 
 		cvtColor(frame, Rframe, COLOR_BGR2GRAY);
 
-		inRange(Rframe, Scalar(lower), Scalar(upper), Rframe); // ¶şÖµ»¯Í¼Ïñ
+		inRange(Rframe, Scalar(lower), Scalar(upper), Rframe); // äºŒå€¼åŒ–å›¾åƒ
 
 		dilate(Rframe, Rframe, element3, Point(-1, -1), 1);
 		erode(Rframe, Rframe, element5, Point(-1, -1), 1);
-		dilate(Rframe, Rframe, element3, Point(-1, -1), 1);// ÂË³ıÔëµã
+		dilate(Rframe, Rframe, element3, Point(-1, -1), 1);// æ»¤é™¤å™ªç‚¹
 
 
-		vector<vector<Point>> lunkuo;//ÂÖÀªµÄÈİÆ÷
-		vector<Vec4i> guanxi;//ÂÖÀª¼äµÄ¹ØÏµ
-		Point2f fourPoints[4];// ·Å¾ØĞÎËÄ¸öµã×ø±êµÄÈİÆ÷
+		vector<vector<Point>> lunkuo;//è½®å»“çš„å®¹å™¨
+		vector<Vec4i> guanxi;//è½®å»“é—´çš„å…³ç³»
+		Point2f fourPoints[4];// æ”¾çŸ©å½¢å››ä¸ªç‚¹åæ ‡çš„å®¹å™¨
 
 							  //imshow("test",Rframe);
 							  //waitKey(10000);
 
 
-		findContours(Rframe, lunkuo, guanxi, RETR_EXTERNAL, CHAIN_APPROX_NONE, Point(0, 0));//ÕÒµ½Ä¿±êÂÖÀª
+		findContours(Rframe, lunkuo, guanxi, RETR_EXTERNAL, CHAIN_APPROX_NONE, Point(0, 0));//æ‰¾åˆ°ç›®æ ‡è½®å»“
 
 																								  //drawContours(frame,lunkuo,-1,Scalar(a,0,0));
 		int tarNum = lunkuo.size();
@@ -72,7 +72,7 @@ namespace tracker
 			tarNum = 4;
 		}
 
-		vector<Point2f> zuobiao(tarNum, Point2f(0, 0));//¾ØĞÎµÄ×ø±êµÄÏòÁ¿
+		vector<Point2f> zuobiao(tarNum, Point2f(0, 0));//çŸ©å½¢çš„åæ ‡çš„å‘é‡
 
 		if (tarNum == 0)
 		{
@@ -87,10 +87,10 @@ namespace tracker
 		{
 
 			RotatedRect fangxing = minAreaRect(lunkuo[i]);   //
-			fangxing.points(fourPoints);//ËÄ¸öµã×ø±ê·Å½øÈİÆ÷ÄÚ
+			fangxing.points(fourPoints);//å››ä¸ªç‚¹åæ ‡æ”¾è¿›å®¹å™¨å†…
 
 			zuobiao[i].x = (fourPoints[0].x + fourPoints[2].x) / 2;
-			zuobiao[i].y = (fourPoints[0].y + fourPoints[2].y) / 2;//·Ö±ğ·ÅÈë×ø±ê
+			zuobiao[i].y = (fourPoints[0].y + fourPoints[2].y) / 2;//åˆ†åˆ«æ”¾å…¥åæ ‡
 
 
 			if (draw)
@@ -133,7 +133,7 @@ namespace Pred
 		double val;
 		double TimeStamp;
 	};
-	/*sort ×¨ÓÃcompareº¯Êı*/
+	/*sort ä¸“ç”¨compareå‡½æ•°*/
 	static bool ccompare(Obj_Pos_Frame& a1, Obj_Pos_Frame& a2)
 	{
 		return (a1.TimeStamp > a2.TimeStamp);
@@ -158,10 +158,10 @@ namespace Pred
 		{
 			{
 				lock_guard<mutex> lck(upDate_Locker);
-				//0ÊÇ×îÊ±¼ä×î¿¿Ç°µÄ£¬×î¶à²»³¬¹ımax¸ö
+				//0æ˜¯æœ€æ—¶é—´æœ€é å‰çš„ï¼Œæœ€å¤šä¸è¶…è¿‡maxä¸ª
 				Position.push_back(NewPos);
-				std::sort(Position.begin(), Position.end(), P_ccompare);//ÒÔÊ±¼ä´Á½øĞĞÅÅĞò
-				while (Position.size() > maxFrame) Position.pop_back();//È·±£¶ÔÏóÊıÁ¿²»³¬±ê
+				std::sort(Position.begin(), Position.end(), P_ccompare);//ä»¥æ—¶é—´æˆ³è¿›è¡Œæ’åº
+				while (Position.size() > maxFrame) Position.pop_back();//ç¡®ä¿å¯¹è±¡æ•°é‡ä¸è¶…æ ‡
 			}
 			FreshData();
 		}
@@ -171,8 +171,8 @@ namespace Pred
 		}
 
 		/*
-		·µ»Ø¶àÏîÊ½º¯Êı ax^0+bx^1.........
-		Ö»¶Á²»ÄÜĞŞ¸Ä
+		è¿”å›å¤šé¡¹å¼å‡½æ•° ax^0+bx^1.........
+		åªè¯»ä¸èƒ½ä¿®æ”¹
 		*/
 		void ReturnPolyFunc(double*& poly, int& degree)
 		{
@@ -180,7 +180,7 @@ namespace Pred
 			poly = Pred_Poly;
 			degree = poly_Order;
 		}
-		/*·µ»Ø¶àÏîÊ½º¯Êı ax^0+bx^1.........*/
+		/*è¿”å›å¤šé¡¹å¼å‡½æ•° ax^0+bx^1.........*/
 		vector<double> ReturnPolyFunc()
 		{
 			vector<double> poly;
@@ -192,27 +192,27 @@ namespace Pred
 		double Position_now(double now)
 		{
 			if (Position.size() == 1) return Position[0].val;
-			else if (Position.size() == 0) return 0;//·À´ô
+			else if (Position.size() == 0) return 0;//é˜²å‘†
 
 			
 
 			lock_guard<mutex> lck(poly_Locker);
 			double x = 0;
 
-			for (uint n = 0; n <= poly_Order; n++)x += Pred_Poly[n] * pow(now, n);//ËãÖµ
+			for (uint n = 0; n <= poly_Order; n++)x += Pred_Poly[n] * pow(now, n);//ç®—å€¼
 
 			return x;
 		}
 	private:
 
-		Point3d p1;//µ±Ç°×î½üÒ»´ÎË¢ĞÂµÄÎ»ÖÃÊı¾İ
+		Point3d p1;//å½“å‰æœ€è¿‘ä¸€æ¬¡åˆ·æ–°çš„ä½ç½®æ•°æ®
 
-		mutex upDate_Locker;//¶àÏß³ÌÉÏ´«ĞÅÏ¢Ê±µÄ»¥³âËø
-		mutex poly_Locker;//¸üĞÂ¶àÏîÊ½Ê±µÄ
+		mutex upDate_Locker;//å¤šçº¿ç¨‹ä¸Šä¼ ä¿¡æ¯æ—¶çš„äº’æ–¥é”
+		mutex poly_Locker;//æ›´æ–°å¤šé¡¹å¼æ—¶çš„
 
-		uint poly_Order = 3;//¶àÏîÊ½½×Êı
-		uint maxFrame = 10;//×î´ó´¢´æµÄÖ¡Êı
-		std::vector<Pred_Frame> Position;//´¢´æ×ø±êÊı¾İÖ÷ÈİÆ÷
+		uint poly_Order = 3;//å¤šé¡¹å¼é˜¶æ•°
+		uint maxFrame = 10;//æœ€å¤§å‚¨å­˜çš„å¸§æ•°
+		std::vector<Pred_Frame> Position;//å‚¨å­˜åæ ‡æ•°æ®ä¸»å®¹å™¨
 
 		double Pred_Poly[12] = { 0 };
 
@@ -340,7 +340,7 @@ namespace Pred
 		{
 			{
 				lock_guard<mutex> lck(upDate_Locker);
-				//0ÊÇ×îÊ±¼ä×î¿¿Ç°µÄ£¬×î¶à²»³¬¹ımax¸ö
+				//0æ˜¯æœ€æ—¶é—´æœ€é å‰çš„ï¼Œæœ€å¤šä¸è¶…è¿‡maxä¸ª
 				Position.push_back(NewPos);
 				std::sort(Position.begin(), Position.end(), ccompare);
 				while (Position.size() > maxFrame) Position.pop_back();
@@ -356,7 +356,7 @@ namespace Pred
 		Point3d Position_now(double now)
 		{
 			if (Position.size() == 1) return Position[0].Pos;
-			else if (Position.size() == 0) return Point3d(0, 0, 0);//·À´ô
+			else if (Position.size() == 0) return Point3d(0, 0, 0);//é˜²å‘†
 
 			double x = 0, y = 0, z = 0;
 
@@ -374,18 +374,18 @@ namespace Pred
 			p1.x = x;
 			p1.y = y;
 			p1.z = z;
-			return p1;//ÃâÈ¥ÖØ¸´´´½¨ÊµÀı
+			return p1;//å…å»é‡å¤åˆ›å»ºå®ä¾‹
 		}
 	private:
 
-		Point3d p1;//µ±Ç°×î½üÒ»´ÎË¢ĞÂµÄÎ»ÖÃÊı¾İ
+		Point3d p1;//å½“å‰æœ€è¿‘ä¸€æ¬¡åˆ·æ–°çš„ä½ç½®æ•°æ®
 
-		mutex upDate_Locker;//¶àÏß³ÌÉÏ´«ĞÅÏ¢Ê±µÄ»¥³âËø
-		mutex poly_Locker;//¸üĞÂ¶àÏîÊ½Ê±µÄ
+		mutex upDate_Locker;//å¤šçº¿ç¨‹ä¸Šä¼ ä¿¡æ¯æ—¶çš„äº’æ–¥é”
+		mutex poly_Locker;//æ›´æ–°å¤šé¡¹å¼æ—¶çš„
 
-		uint poly_Order = 3;//¶àÏîÊ½½×Êı
-		uint maxFrame = 10;//×î´ó´¢´æµÄÖ¡Êı
-		std::vector<Obj_Pos_Frame> Position;//´¢´æ×ø±êÊı¾İÖ÷ÈİÆ÷
+		uint poly_Order = 3;//å¤šé¡¹å¼é˜¶æ•°
+		uint maxFrame = 10;//æœ€å¤§å‚¨å­˜çš„å¸§æ•°
+		std::vector<Obj_Pos_Frame> Position;//å‚¨å­˜åæ ‡æ•°æ®ä¸»å®¹å™¨
 
 		double Pred_Poly_X[12] = { 0 };
 		double Pred_Poly_Y[12] = { 0 };
@@ -511,14 +511,14 @@ namespace Pred
 		}
 	};
 
-	/*·µ»Ø¶àÏîÊ½º¯Êı ax^0+bx^1.........*/
+	/*è¿”å›å¤šé¡¹å¼å‡½æ•° ax^0+bx^1.........*/
 	vector<double> poly_derivative(const vector<double>& input)
 	{
 		vector<double> derivative;
 		for (int a = 1; a < input.size(); a++)derivative.push_back(a * input[a]);
 		return derivative;
 	}
-	/*·µ»Ø¶àÏîÊ½º¯Êı ax^0+bx^1.........*/
+	/*è¿”å›å¤šé¡¹å¼å‡½æ•° ax^0+bx^1.........*/
 	vector<double> poly_integration(const vector<double>& input,double C=0.0)
 	{
 		
@@ -534,6 +534,119 @@ namespace Pred
 		for (int d = 0; d < input.size(); d++)y += input[d] * pow(x,d);
 		return y;
 	}
+	
+	
+	
+double cubr(double x)
+{
+	if (x > 0)return pow(x,1/3.0);
+	return -pow(-x,1/3.0);
+}
+complex<double> cubr(complex<double> x)
+{
+	if ((abs(x.imag()) < 1e-10) && (x.real() < 0))return complex<double>(-pow(-x.real(),1/3.0));
+
+	else return pow(x, 1/3.0);
+}
+complex<double> sqroot(complex<double> x)
+{
+	if ((abs(x.imag()) < 1e-10) && (x.real() < 0))return complex<double>(-pow(-x.real(), 0.5));
+
+	else return pow(x, 0.5);
+}
+
+vector <double> solveCubic(double a, double b,  double c,  double d)
+{
+	/*https://zhuanlan.zhihu.com/p/40349993 */
+
+	typedef complex< double> C;
+
+	 double p, q;
+
+	p = (3 * a * c - b * b) / (3 * a * a);
+	q = ((27 * a * a * d) - (9 * a * b * c) + 2 * pow(b, 3)) / (27 * pow(a, 3));
+
+
+
+	double delta=q*q/4+pow(p/3,3);
+
+	//cout << delta << endl;
+	
+
+
+	C rootDelta = sqroot(C(delta));
+
+
+	C plus_root = cubr(C(-q / 2, 0) + rootDelta);
+	C minu_root = cubr(C(-q / 2, 0) - rootDelta);
+
+
+	C omega(-0.5,0.8660254037844386468);
+	C omega2 = omega * omega;
+
+
+	C y_x(b / (3 * a));
+
+	C x1 = plus_root + minu_root - y_x;
+	C x2 = (omega * plus_root) + (omega2 * minu_root) - y_x;
+	C x3 = (omega2 * plus_root) + (omega * minu_root) - y_x;
+
+	vector <double> output;
+
+	if (abs(x1.imag()) < 1e-10)output.push_back(x1.real());
+	if (abs(x2.imag()) < 1e-10)output.push_back(x2.real());
+	if (abs(x3.imag()) < 1e-10)output.push_back(x3.real());
+
+	//double X1 = cubr(-q / 2 + sqrt(delta)) + cubr(-q / 2 - sqrt(delta))-(b/(3*a));
+
+
+
+	//cout << cubr(-q / 2 - sqrt(delta)) << endl;
+	//cout << minu_root << endl;
+	////cout << X1 << endl;
+	//cout << x1 << endl;
+	//cout << x2 << endl;
+	//cout << x3 << endl;
+
+	return output;
+//	cout << y2 << endl;
+//	cout << y3 << endl;
+
+}
+
+vector <double> predPoly(double F,double S,double y2,double Y1,double dt)
+{
+	double& C = Y1;
+	vector <double> x;
+	{
+		double a = (F / 4 - F / 6);
+		double b = 0;
+		double c = (-C / 2 - y2 / 2);
+		double d = S;
+
+		x= solveCubic(a, b, c, d);
+	}
+
+	vector<double> b;//real b
+
+
+	
+	for (int num=0; num<x.size(); num++)
+	{
+		double X = x[num];
+		double B = (y2 - C - (F / 2) * X * X)/X ;
+		
+		double result = (F / 6) * pow(X, 3) + (B / 2) * pow(X, 2) + C * X;
+
+		if (abs(result - S) < 1e-10)b.push_back(B);
+	}
+
+	//cout << b.size()<<endl;
+	sort(b.begin(),b.end());
+	
+	return vector<double>{(dt*(F/2)-b[0])*dt+C,b[0]-dt*F,F/2};
+	//return vector<double>{C, b[0], F / 2};
+}
 
 
 }
