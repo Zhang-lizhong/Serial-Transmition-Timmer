@@ -46,7 +46,7 @@ public:
 			//return 0;
 		}
 
-		else cout << "打开COM成功!" << endl;
+		else cout << "打开"<<HandName<<"成功!" << endl;
 
 		SetupComm(STM32, 1024, 1024);//输入缓冲区和输出缓冲区的大小都是1024
 		COMMTIMEOUTS TimeOuts;//设定读超时
@@ -89,7 +89,7 @@ public:
 			return 0;
 		}
 
-		else cout << "打开COM成功!" << endl;
+		else cout << "打开"<<HandName<<"成功!" << endl;
 
 		SetupComm(STM32, 1024, 1024);//输入缓冲区和输出缓冲区的大小都是1024
 		COMMTIMEOUTS TimeOuts;//设定读超时
